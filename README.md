@@ -8,7 +8,7 @@ This image is used in production deployments.
 
 ### Image includes
 
- * Asterisk 15
+ * Asterisk 16
  * FreePBX 14
  * Modules: IVR, Time Conditions, Backup, Recording
  * Automatic backup script
@@ -21,16 +21,14 @@ docker-compose.yml
 version: '3.3'
 services:
   freepbx:
-    image: flaviostutz/freepbx:14.0
+    image: aasaidane/freepbx
     network_mode: host
     restart: always
     volumes:
-      - freepbx-backup:/backup
-      - freepbx-recordings:/var/spool/asterisk/monitor
+      - freepbx:/data
 
 volumes:
-  freepbx-backup:
-  freepbx-recordings:
+  freepbx:
 ```
 
 * Run ```docker-compose up -d```

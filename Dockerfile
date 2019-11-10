@@ -10,11 +10,13 @@ RUN apt-get update \
 	libsqlite3-dev pkg-config automake libtool autoconf git unixodbc-dev uuid uuid-dev\
 	libasound2-dev libogg-dev libvorbis-dev libicu-dev libcurl4-openssl-dev libical-dev libneon27-dev libsrtp0-dev\
 	libspandsp-dev sudo libmyodbc subversion libtool-bin python-dev\
-	aptitude cron fail2ban net-tools vim wget \
+	aptitude cron fail2ban net-tools vim wget libedit-dev \
 	&& rm -rf /var/lib/apt/lists/*
 
+RUN mkdir /data
+
 RUN cd /usr/src \
-	&& wget -O jansson.tar.gz https://github.com/akheron/jansson/archive/v2.7.tar.gz \
+	&& wget -O jansson.tar.gz https://github.com/akheron/jansson/archive/v2.11.tar.gz \
 	&& tar xfz jansson.tar.gz \
 	&& rm -f jansson.tar.gz \
 	&& cd jansson-* \
@@ -25,9 +27,9 @@ RUN cd /usr/src \
 	&& rm -r /usr/src/jansson*
 
 RUN cd /usr/src \
-	&& wget http://downloads.asterisk.org/pub/telephony/asterisk/asterisk-15.7.3.tar.gz \
-	&& tar xfz asterisk-15.7.3.tar.gz \
-	&& rm -f asterisk-15.7.3.tar.gz \
+	&& wget http://downloads.asterisk.org/pub/telephony/asterisk/asterisk-16.6.1.tar.gz \
+	&& tar xfz asterisk-16.6.1.tar.gz \
+	&& rm -f asterisk-16.6.1.tar.gz \
 	&& cd asterisk-* \
 	&& contrib/scripts/install_prereq install \
 	&& ./configure --with-pjproject-bundled \
@@ -58,11 +60,16 @@ RUN sed -i 's/^upload_max_filesize = 2M/upload_max_filesize = 120M/' /etc/php5/a
 COPY ./config/odbcinst.ini /etc/odbcinst.ini
 COPY ./config/odbc.ini /etc/odbc.ini
 
+RUN sed -i 's/^user		= mysql/user		= root/' /etc/mysql/my.cnf
+#RUN sed -i 's/\/var\/lib\/mysql/\/data\/mysql/' /etc/mysql/my.cnf
+
 RUN cd /usr/src \
 	&& wget http://mirror.freepbx.org/modules/packages/freepbx/freepbx-14.0-latest.tgz \
 	&& tar xfz freepbx-14.0-latest.tgz \
 	&& rm -f freepbx-14.0-latest.tgz \
 	&& cd freepbx \
+	&& mkdir -p /data/mysql \
+	&& chown mysql:mysql -R /data/mysql \
 	&& chown mysql:mysql -R /var/lib/mysql/* \
 	&& /etc/init.d/mysql start \
 	&& ./start_asterisk start \
@@ -92,8 +99,6 @@ RUN	git clone https://github.com/BelledonneCommunications/bcg729 /usr/src/bcg729
 	make ; \
 	make install
 
-RUN sed -i 's/^user		= mysql/user		= root/' /etc/mysql/my.cnf
-
 COPY ./run /run
 RUN chmod +x /run/*
 
@@ -103,9 +108,10 @@ CMD /run/startup.sh
 
 EXPOSE 80 3306 5060 5061 5160 5161 4569 10000-20000/udp
 
+#data
+VOLUME [ "/data" ]
+
+VOLUME [ "/var/lib/mysql/" ]
+
 #recordings data
 VOLUME [ "/var/spool/asterisk/monitor" ]
-#database data
-VOLUME [ "/var/lib/mysql" ]
-#automatic backup
-VOLUME [ "/backup" ]

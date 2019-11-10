@@ -17,9 +17,9 @@ fi
 
 
 #restore backup if exists
-if [ -f /backup/new.tgz ]; then
+if [ -f /data/backup/new.tgz ]; then
   echo "Restoring backup from /backup/new.tgz"
-  php /var/www/html/admin/modules/backup/bin/restore.php --items=all --restore=/backup/new.tgz
+  php /var/www/html/admin/modules/backup/bin/restore.php --items=all --restore=/data/backup/new.tgz
   echo "Done"
 fi
 #restart freepbx to load everything fine after restoring backup

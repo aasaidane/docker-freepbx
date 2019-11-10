@@ -2,13 +2,11 @@ version: '3.3'
 services:
   freepbx:
     build: .
-    image: flaviostutz/freepbx:14.0
+    image: aasaidane/freepbx
     network_mode: host
     restart: always
     volumes:
-      - freepbx-backup:/backup
-      - freepbx-recordings:/var/spool/asterisk/monitor
+      - freepbx:/data
 
 volumes:
-  freepbx-backup:
-  freepbx-recordings:
+  freepbx:
